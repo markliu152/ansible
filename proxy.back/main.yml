@@ -1,0 +1,67 @@
+---
+- hosts: proxy
+  become: yes
+  vars_files:
+    - proxy_vars.yml
+  tasks:
+    - name: disable && close zabbix_proxy
+      shell: "systemctl disable zabbix-proxy && systemctl stop zabbix-proxy"
+      tags:
+        - stop zabbix_proxy
+      notify:
+        - stop zabbix_proxy
+
+    - name: mv config
+      shell: "cd /etc/zabbix/ && mv zabbix_proxy.conf zabbix_proxy.conf.bak"
+      tags:
+        - mv config
+
+    - name: open selinux
+      shell: "sed -i 's/SELINUX=disabled/SELINUX=enforcing/' {{selinux_file}}"
+      tags:
+        - open selinux
+
+    - name: set firewall
+      shell: "firewall-cmd --remove-port={10050/tcp,10051/tcp} --permanent && firewall-cmd --reload"
+      tags:
+        - set firewall
+
+    - name: del zabbix_proxy.psk
+      shell: "rm -rf /etc/zabbix/zabbix_proxy.psk"
+      tags:
+        - del zabbix_proxy.psk
+
+    - name: del schema.sql.gz
+      shell: "rm -rf /usr/share/doc/zabbix-proxy-mysql-3.*/schema.sql.gz"
+      tags:
+        - del schema.sql.gz
+
+    - name: Mysql | drop database
+      mysql_db: name=zabbix_proxy state=absent
+      tags:
+        - drop database
+
+    - name: disable && stop mariadb
+      shell: "systemctl disable mariadb && systemctl stop mariadb"
+      tags:
+        - stop mariadb
+      notify:
+        - stop mariadb
+
+    - name: remove package
+      yum: pkg={{ item }} state=absent
+      with_items:
+        - mariadb
+        - mariadb-server
+        - zabbix-proxy-mysql
+        - MySQL-python
+      tags:
+        - remove pkg
+
+  handlers:
+    - name: stop mariadb
+      service: name=mariadb state=stopped 
+
+    - name: stop zabbix_proxy
+      service: name=zabbix-proxy state=stopped
+

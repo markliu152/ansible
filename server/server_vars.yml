@@ -1,0 +1,5 @@
+---
+server_conf: /etc/zabbix/zabbix_server.conf
+httpd_conf: /etc/httpd/conf.d/zabbix.conf
+agent_conf: /etc/zabbix/zabbix_agentd.conf
+selinux_file: /etc/selinux/config

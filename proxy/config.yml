@@ -1,0 +1,12 @@
+---
+- name: copy zabbix_proxy.conf
+  template: src=zabbix_proxy.conf.j2 dest=/etc/zabbix/zabbix_proxy.conf
+  tags:
+    - copy config
+
+- name: enable && restart zabbix_proxy 
+  shell: "systemctl enable zabbix-proxy"
+  tags:
+    - enabled proxy
+  notify:
+    - restart zabbix_proxy

@@ -1,0 +1,8 @@
+---
+server_ip: 192.168.0.188
+selinux_file: /etc/selinux/config
+proxy_dbname: zabbix_proxy
+proxy_dbuser: zabbix
+proxy_dbpassword: 123456
+proxy_path_psk: /etc/zabbix/zabbix_proxy.psk
+proxy_config: /etc/zabbix/zabbix_proxy.conf
